@@ -38,7 +38,7 @@ project/assembly_name="SCP-087-B"
 
 [editor_plugins]
 
-enabled=PackedStringArray()
+enabled=PackedStringArray("res://addons/required_property_helper/plugin.cfg")
 
 [input]
 
