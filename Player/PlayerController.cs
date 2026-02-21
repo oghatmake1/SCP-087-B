@@ -2,8 +2,7 @@ using System;
 using Godot;
 
 [SceneGlobal]
-public partial class PlayerController : CharacterControllerBase
-{
+public partial class PlayerController : CharacterControllerBase {
     [Export] public required AudioStream Step;
     [Export] public required AnimationPlayer Animations;
     [Export] public required Node3D CameraRail;
@@ -15,8 +14,8 @@ public partial class PlayerController : CharacterControllerBase
     [Export] public float FogNear = 1f;
     [Export] public float FogFar = 3f;
     [Export] 
-    float MouseSensitivity = 0.02f;
-    float ControllerSensitivity = 4f;
+    [Export] float MouseSensitivity = 0.02f;
+    [Export] float ControllerSensitivity = 4f;
 
     public float DeathBrightnessLerp {
         get;
@@ -60,10 +59,6 @@ public partial class PlayerController : CharacterControllerBase
     public override void _Process(double delta) {
         float lookRight = Input.GetActionStrength("LookRight") - Input.GetActionStrength("LookLeft");
         float lookUp = Input.GetActionStrength("LookDown") - Input.GetActionStrength("LookUp");
-
-        const float deadzone = 0.02f;
-        if (MathF.Abs(lookRight) < deadzone) lookRight = 0;
-        if (MathF.Abs(lookUp) < deadzone) lookUp = 0;
 
         if (lookRight != 0f || lookUp != 0f) {
             Vector2 lookDelta = new Vector2(lookRight * ControllerSensitivity, lookUp * ControllerSensitivity);
