@@ -74,7 +74,7 @@ public partial class PlayerController : CharacterControllerBase
 	private void HandleLook(Vector2 lookDelta) {
 		_yaw -= lookDelta.X;
 		_pitch -= lookDelta.Y;
-		float minmaxpitch = 90f;
+		float minmaxpitch = 89f;
 		float minPitch = -minmaxpitch * (MathF.PI / 180f);
 		float maxPitch = minmaxpitch * (MathF.PI / 180f);
 		_pitch = Mathf.Clamp(_pitch, minPitch, maxPitch);
