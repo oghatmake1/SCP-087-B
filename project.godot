@@ -95,11 +95,6 @@ LookLeft={
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
-textures/vram_compression/import_s3tc_bptc=true
-textures/vram_compression/import_etc2_astc=true
-anti_aliasing/quality/msaa_3d=3
-environment/defaults/default_clear_color=Color(0, 0, 0, 1)
-anti_aliasing/quality/screen_space_aa=2
 
 [shader_globals]
 
