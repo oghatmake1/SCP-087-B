@@ -100,3 +100,8 @@ blurStrength={
 "type": "float",
 "value": 0.8
 }
+
+
+[xr]
+
+openxr/enabled=true
