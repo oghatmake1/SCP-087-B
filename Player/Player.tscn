@@ -88,12 +88,11 @@ _data = {
 &"RESET": SubResource("Animation_q3lat")
 }
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Animations", "CameraRail", "Camera")]
+[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Animations", "VrCamera")]
 script = ExtResource("1_xhfnw")
 Step = ExtResource("2_tok1r")
 Animations = NodePath("AnimationPlayer")
-CameraRail = NodePath("Rail")
-Camera = NodePath("Rail/Camera3D")
+VrCamera = NodePath("XROrigin3D/XRCamera3D")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
@@ -105,6 +104,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
 [node name="Camera3D" type="Camera3D" parent="Rail"]
 fov = 58.7
 far = 100.0
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+current = true
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {

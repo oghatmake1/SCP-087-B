@@ -6,8 +6,7 @@ public partial class PlayerController : CharacterControllerBase {
     [Export] public required AudioStream Step;
 
     [Export] public required AnimationPlayer Animations;
-    [Export] public required Node3D CameraRail;
-    [Export] public required Camera3D Camera;
+    [Export] public required XRCamera3D VrCamera;
     [Export] public float ForwardSpeed = 1.2f;
     [Export] public float BackwardSpeed = 0.9f;
     [Export] public float SidewardsSpeed = 0.48f;
@@ -16,8 +15,7 @@ public partial class PlayerController : CharacterControllerBase {
     [Export] public float FogNear = 1f;
     // Originally 2.5f, adjusted to account for radial fog.
     [Export] public float FogFar = 3f;
-    
-    [Export] private float MouseSensitivity = 0.2f;
+
     [Export] private float ControllerSensitivity = 300f;
 
     [Export]
@@ -37,38 +35,31 @@ public partial class PlayerController : CharacterControllerBase {
     }
 
     private bool _isDead;
-
-    private static readonly Vector3 HeadBobInterval = new Vector3(80f, 40f, 1f) / 60f;
-    private static readonly Vector3 HeadBobOffset = new(0.08f, 0.1f, 0f);
-    private float _headBobAcc;
+    private float _stepAcc;
+    private const float StepInterval = 0.45f;
 
     public int Floor => Helpers.GetFloor(GlobalPosition - new Vector3(0f, 0.5f, 0f));
+    public Camera3D Camera => VrCamera;
+
 
     public override void _Ready() {
+        if (!TryEnableVr()) {
+            OS.Alert("OpenXR headset not detected. This build is VR-only.", "VR Required");
+            GetTree().Quit();
+            return;
+        }
+
         Input.MouseMode = Input.MouseModeEnum.Captured;
         SetFogRange(FogNear, FogFar);
         Helpers.SetBrightness(Brightness);
-    }
-
-    public override void _Input(InputEvent @event) {
-        if (@event is InputEventMouseMotion mm) {
-            HandleLook(mm.Relative * MouseSensitivity);
-        }
+        VrCamera.Current = true;
     }
 
     public override void _Process(double delta) {
-        var lookVector = Input.GetVector(
-            "LookLeft", "LookRight",
-            "LookUp", "LookDown");
-
-        if (lookVector != Vector2.Zero) {
-            HandleLook(lookVector * ControllerSensitivity * (float)delta);
+        var turnInput = Input.GetAxis("LookLeft", "LookRight");
+        if (Mathf.Abs(turnInput) > 0.01f) {
+            RotateY(-turnInput * Mathf.DegToRad(ControllerSensitivity) * (float)delta);
         }
-    }
-
-    private void HandleLook(Vector2 lookDelta) {
-        var rot = CameraRail.RotationDegrees - new Vector3(lookDelta.Y, lookDelta.X, 0);
-        CameraRail.RotationDegrees = rot with { X = float.Clamp(rot.X, -89.9f, 89.9f) };
     }
 
     public override void _PhysicsProcess(double deltaD) {
@@ -80,7 +71,7 @@ public partial class PlayerController : CharacterControllerBase {
                 : 0
         );
 
-        var rightDir = (-Camera.GlobalBasis.Z).Cross(UpDirection).Normalized();
+        var rightDir = (-VrCamera.GlobalBasis.Z).Cross(UpDirection).Normalized();
         var forwardDir = rightDir.Cross(UpDirection).Normalized();
 
         Velocity = (rightDir * inputDir.X + forwardDir * inputDir.Y) with {
@@ -88,15 +79,13 @@ public partial class PlayerController : CharacterControllerBase {
         };
 
         if (inputDir != Vector2.Zero) {
-            var oldAcc = _headBobAcc;
-            _headBobAcc = (_headBobAcc + (float)deltaD) % MathF.Max(HeadBobInterval.X, HeadBobInterval.Y);
-            if (_headBobAcc % HeadBobInterval.Y < oldAcc % HeadBobInterval.Y) {
+            _stepAcc += (float)deltaD;
+            if (_stepAcc >= StepInterval) {
+                _stepAcc = 0f;
                 AudioManager.PlaySound(Step);
             }
-            var intervalHalf = HeadBobInterval / 2f;
-            Camera.Position = HeadBobOffset * (new Vector3(1f, 1f, 1f)
-                                               - (new Vector3(_headBobAcc, _headBobAcc, _headBobAcc) % HeadBobInterval
-                                                  - intervalHalf).Abs() / intervalHalf);
+        } else {
+            _stepAcc = 0f;
         }
 
         var prevVel = Velocity;
@@ -134,5 +123,15 @@ public partial class PlayerController : CharacterControllerBase {
     public void ResetFogRange() => SetFogRange(FogNear, FogFar);
     public void SetFogRange(float near, float far) {
         RenderingServer.GlobalShaderParameterSet("fog", new Vector2(near, far));
+    }
+
+    private bool TryEnableVr() {
+        var xr = XRServer.FindInterface("OpenXR");
+        if (xr == null || !xr.Initialize()) {
+            return false;
+        }
+
+        GetViewport().UseXR = true;
+        return true;
     }
 }
