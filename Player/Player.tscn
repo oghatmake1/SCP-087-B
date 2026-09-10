@@ -1,8 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://jvlcxa3mx0vy"]
+[gd_scene format=3 uid="uid://jvlcxa3mx0vy"]
 
 [ext_resource type="Script" uid="uid://hl3jesmlyoxc" path="res://Player/PlayerController.cs" id="1_xhfnw"]
 [ext_resource type="AudioStream" uid="uid://nr66inw1bgri" path="res://Player/death.ogg" id="2_q3lat"]
 [ext_resource type="AudioStream" uid="uid://hm0dkj5b5nx1" path="res://Player/step.wav" id="2_tok1r"]
+[ext_resource type="Script" uid="uid://ddllm8lm1jkr5" path="res://Player/VRHandler.gd" id="3_ddoul"]
+[ext_resource type="Script" uid="uid://c850mab2u51js" path="res://Utility/VirtualJoystick.gd" id="5_8g4oa"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_kpjcp"]
 radius = 0.3
@@ -88,27 +90,62 @@ _data = {
 &"RESET": SubResource("Animation_q3lat")
 }
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("Animations", "CameraRail", "Camera")]
+[node name="Player" type="CharacterBody3D" unique_id=542070651 node_paths=PackedStringArray("Animations", "CameraRail", "Camera", "RightController", "LeftController", "HMD")]
 script = ExtResource("1_xhfnw")
 Step = ExtResource("2_tok1r")
 Animations = NodePath("AnimationPlayer")
 CameraRail = NodePath("Rail")
 Camera = NodePath("Rail/Camera3D")
+RightController = NodePath("Rail/XROrigin3D/XRController3D2")
+LeftController = NodePath("Rail/XROrigin3D/XRController3D")
+HMD = NodePath("Rail/XROrigin3D/XRController3D3")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=591717699]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 shape = SubResource("CapsuleShape3D_kpjcp")
 
-[node name="Rail" type="Node3D" parent="."]
+[node name="Rail" type="Node3D" parent="." unique_id=1909978250]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+script = ExtResource("3_ddoul")
 
-[node name="Camera3D" type="Camera3D" parent="Rail"]
-fov = 58.7
+[node name="Camera3D" type="Camera3D" parent="Rail" unique_id=241444418]
+fov = 73.7
+near = 0.001
 far = 100.0
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_ddoul")
-}
+[node name="XROrigin3D" type="XROrigin3D" parent="Rail" unique_id=581329732]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+current = true
 
-[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+[node name="XRController3D3" type="XRController3D" parent="Rail/XROrigin3D" unique_id=54823868]
+tracker = &"head"
+
+[node name="XRController3D2" type="XRController3D" parent="Rail/XROrigin3D" unique_id=961750282]
+tracker = &"right_hand"
+
+[node name="XRController3D" type="XRController3D" parent="Rail/XROrigin3D" unique_id=815210151]
+tracker = &"left_hand"
+pose = &"aim"
+
+[node name="XRCamera3D" type="XRCamera3D" parent="Rail/XROrigin3D" unique_id=1174725754]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+current = true
+near = 0.001
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1230537012]
+libraries/ = SubResource("AnimationLibrary_ddoul")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=14447155]
+
+[node name="VirtualJoystick" type="VirtualJoystick" parent="." unique_id=761669592]
+offset_left = 122.0
+offset_top = 406.0
+offset_right = 275.0
+offset_bottom = 563.0
+joystick_mode = 1
+joystick_size = 141.0
+action_left = &"MoveLeft"
+action_right = &"MoveRight"
+action_up = &"MoveForward"
+action_down = &"MoveBackward"
+script = ExtResource("5_8g4oa")
