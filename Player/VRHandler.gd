@@ -16,8 +16,8 @@ func _ready():
 	last_camera_pos = camera.global_position
 	
 func _process(_delta: float) -> void:
-	$Camera3D.transform = $XROrigin3D/XRCamera3D.transform 
 	if xrinterface and xrinterface.is_initialized():
+		$Camera3D.transform = $XROrigin3D/XRCamera3D.transform 
 		var player = $".."
 		var origin = $XROrigin3D
 		var camera = $XROrigin3D/XRController3D #$XROrigin3D/XRCamera3D
